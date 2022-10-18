@@ -21,15 +21,21 @@ class MethodChannelTestplugin extends TestpluginPlatform {
   @override
   Future<EventChannelResult> getEventChannel(int index) async {
     Completer<int> completer = Completer<int>();
+    int temp = 0;
     StreamController<int> streamController = StreamController<int>();
     testPluginEventChannel.receiveBroadcastStream({"index": index}).listen((event) {
       if (event["index"] == 5) {
+        temp = 5;
         streamController.addError(Exception("error 5"));
       } else {
         streamController.add(event["index"]);
       }
     }, onDone: () {
-      completer.complete(1000);
+      if (temp == 5) {
+        completer.completeError(Exception("error 5"));
+      } else {
+        completer.complete(1000);
+      }
     }).onError((e) => print("error = "));
     return EventChannelResult(streamController.stream, completer.future);
   }

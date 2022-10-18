@@ -47,20 +47,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onTap() async {
-    try {
-      final res = await _testpluginPlugin.getEventChannel(0);
-      res.result.listen((event) async {
-        setState(() {
-          index = event;
-        });
-      }).onError((e) => print("abc error $e"));
-      final temp = await res.finish;
+    final res = await _testpluginPlugin.getEventChannel(0);
+    res.result.listen((event) async {
       setState(() {
-        index = temp;
+        index = event;
       });
-    } catch (e) {
-      print("-----$e");
-    }
+    }).onError((e) => print("abc error $e"));
+
+    res.finish
+        .then((value) => setState(() => index = value))
+        .onError((error, stackTrace) => print("finish error $error"));
   }
 
   @override
